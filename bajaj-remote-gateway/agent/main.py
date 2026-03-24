@@ -10,6 +10,7 @@ from .ws_client import AgentWebSocketClient
 
 
 def setup_logging() -> None:
+    """Configure root logger level and basic text format."""
     logging.basicConfig(
         level=os.getenv("LOG_LEVEL", "INFO"),
         format="%(asctime)s %(levelname)s %(name)s %(message)s",

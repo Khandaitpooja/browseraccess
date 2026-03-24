@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import os
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 
 from common.schemas import ProxyResponseMessage
@@ -14,6 +14,7 @@ from .ws_manager import PendingRequestManager
 
 
 def setup_logging() -> None:
+    """Initialize module-wide logging format and log level from env."""
     logging.basicConfig(
         level=os.getenv("LOG_LEVEL", "INFO"),
         format="%(asctime)s %(levelname)s %(name)s %(message)s",
@@ -38,7 +39,8 @@ def create_app() -> FastAPI:
     app.include_router(proxy_router)
 
     @app.get("/health")
-    async def health() -> JSONResponse:
+    async def health(request: Request) -> JSONResponse:
+        connections = request.app.state.connections
         agents = await connections.list_agents()
         return JSONResponse({"status": "ok", "connected_agents": agents})
 
@@ -67,6 +69,7 @@ def create_app() -> FastAPI:
             logging.exception("agent_ws_error", extra={"agent_id": agent_id})
         finally:
             await connections.unregister(agent_id)
+            await pending.fail_by_agent(agent_id, "Agent disconnected")
 
     return app
 

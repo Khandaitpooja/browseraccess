@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import logging
+from typing import Any
 
 import httpx
 
@@ -24,6 +25,8 @@ BINARY_PREFIX = "__base64__"
 
 
 class ProxyHandler:
+    """Handles each proxied HTTP request from server to local target camera."""
+
     def __init__(self, timeout_seconds: float = 20.0) -> None:
         self.timeout_seconds = timeout_seconds
 
@@ -50,7 +53,7 @@ class ProxyHandler:
                 )
 
             headers = normalize_response_headers(response.headers)
-            response_body = serialize_body(response.content, headers.get("content-type", ""))
+            response_body = serialize_body(response)
             return ProxyResponseMessage(
                 id=message.id,
                 status=response.status_code,
@@ -68,8 +71,9 @@ class ProxyHandler:
             )
 
 
-def normalize_response_headers(headers: httpx.Headers) -> dict[str, str]:
-    result: dict[str, str] = {}
+def normalize_response_headers(headers: httpx.Headers) -> dict[str, Any]:
+    """Convert h2/h3 headers to safe downstream object and preserve cookies."""
+    result: dict[str, Any] = {}
     set_cookie_values: list[str] = []
 
     for key, value in headers.multi_items():
@@ -79,16 +83,27 @@ def normalize_response_headers(headers: httpx.Headers) -> dict[str, str]:
         if lower == "set-cookie":
             set_cookie_values.append(value)
             continue
+        if lower == "content-length":
+            continue
         result[lower] = value
 
     if set_cookie_values:
-        result["set-cookie"] = "\n".join(set_cookie_values)
+        result["set-cookie"] = set_cookie_values
 
     return result
 
 
-def serialize_body(body: bytes, content_type: str) -> str:
+def serialize_body(response: httpx.Response) -> str:
+    """Serialize agent response body to text or base64 prefix for binary data."""
+    content_type = response.headers.get("content-type", "")
     lowered = content_type.lower()
+
     if "text/" in lowered or "json" in lowered or "javascript" in lowered or "xml" in lowered:
-        return body.decode("utf-8", errors="ignore")
-    return BINARY_PREFIX + base64.b64encode(body).decode("ascii")
+        # Preserve HTTPX-decoded text (charset-aware) when possible
+        try:
+            return response.text
+        except Exception:
+            return response.content.decode("utf-8", errors="replace")
+
+    # Return base64 for binary payloads
+    return BINARY_PREFIX + base64.b64encode(response.content).decode("ascii")

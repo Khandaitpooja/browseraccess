@@ -10,6 +10,12 @@ from .models import AgentConnection
 
 
 class ConnectionManager:
+    """Tracks active agent websocket sessions in-memory.
+
+    This value should be shared on FastAPI app state and is safe for async
+    access because all touches are guarded with a lock.
+    """
+
     def __init__(self) -> None:
         self._agents: dict[str, AgentConnection] = {}
         self._lock = asyncio.Lock()
