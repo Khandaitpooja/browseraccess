@@ -183,10 +183,17 @@ def rewrite_html_paths(html: str, target: str) -> str:
     def rewrite_url(raw: str) -> str:
         if not raw or raw.startswith("#") or raw.startswith("?"):
             return raw
+
         if raw.startswith(("http://", "https://", "//", "mailto:", "tel:")):
             return raw
+
+        # 🔥 FIX: handle broken absolute paths
+        if raw.startswith("/script/"):
+            raw = "/doc" + raw  # fix missing base path
+
         if raw.startswith("/"):
             return f"{prefix}{raw}"
+
         return f"{prefix}/{raw.lstrip('./')}"
 
     def replace_attr(match: re.Match[str]) -> str:
@@ -206,7 +213,16 @@ def rewrite_html_paths(html: str, target: str) -> str:
         rewritten = rewrite_url(value)
         return f"url({quote}{rewritten}{quote})"
 
-    return url_pattern.sub(replace_url, html)
+    html = url_pattern.sub(replace_url, html)
+
+    # CRITICAL: fix JS dynamic paths (SeaJS, inline scripts)
+    html = html.replace('"/script/', f'"/proxy/{target}/doc/script/')
+    html = html.replace("'/script/", f"'/proxy/{target}/doc/script/")
+    # Also handle "/doc/script" explicitly (safety)
+    html = html.replace('"/doc/script/', f'"/proxy/{target}/doc/script/')
+    html = html.replace("'/doc/script/", f"'/proxy/{target}/doc/script/")
+
+    return html
 
 
 @router.api_route("/proxy/{target}/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"])
