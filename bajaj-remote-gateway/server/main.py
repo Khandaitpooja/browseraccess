@@ -6,11 +6,11 @@ import os
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 
-from server.schemas import ProxyResponseMessage
+from schemas import ProxyResponseMessage
 
-from .connection_manager import ConnectionManager
-from .proxy_routes import ProxyService, router as proxy_router
-from .ws_manager import PendingRequestManager
+from connection_manager import ConnectionManager
+from proxy_routes import ProxyService, router as proxy_router
+from ws_manager import PendingRequestManager
 
 
 def setup_logging() -> None:

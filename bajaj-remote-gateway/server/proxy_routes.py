@@ -11,10 +11,10 @@ from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, Request, Response
 
-from server.schemas import ProxyRequestMessage, ProxyResponseMessage
+from schemas import ProxyRequestMessage, ProxyResponseMessage
 
-from .connection_manager import ConnectionManager
-from .ws_manager import PendingRequestManager
+from connection_manager import ConnectionManager
+from ws_manager import PendingRequestManager
 
 router = APIRouter(tags=["proxy"])
 

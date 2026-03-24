@@ -6,7 +6,7 @@ from typing import Callable
 
 from fastapi import WebSocket
 
-from .models import AgentConnection
+from models import AgentConnection
 
 
 class ConnectionManager:

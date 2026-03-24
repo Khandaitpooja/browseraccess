@@ -4,9 +4,9 @@ import asyncio
 import logging
 import os
 
-from .config import AgentConfig
-from .proxy_handler import ProxyHandler
-from .ws_client import AgentWebSocketClient
+from config import AgentConfig
+from proxy_handler import ProxyHandler
+from ws_client import AgentWebSocketClient
 
 
 def setup_logging() -> None:

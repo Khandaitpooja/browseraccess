@@ -6,7 +6,7 @@ from typing import Any
 
 import httpx
 
-from common.schemas import ProxyRequestMessage, ProxyResponseMessage
+from schemas import ProxyRequestMessage, ProxyResponseMessage
 
 HOP_BY_HOP_HEADERS = {
     "connection",

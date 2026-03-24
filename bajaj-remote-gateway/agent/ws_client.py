@@ -7,10 +7,10 @@ from urllib.parse import urlencode, urlparse, urlunparse
 from websockets.asyncio.client import connect
 from websockets.exceptions import ConnectionClosed
 
-from common.schemas import ProxyRequestMessage
+from schemas import ProxyRequestMessage
 
-from .config import AgentConfig
-from .proxy_handler import ProxyHandler
+from config import AgentConfig
+from proxy_handler import ProxyHandler
 
 
 class AgentWebSocketClient:
