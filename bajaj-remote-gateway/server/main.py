@@ -6,7 +6,7 @@ import os
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 
-from common.schemas import ProxyResponseMessage
+from server.schemas import ProxyResponseMessage
 
 from .connection_manager import ConnectionManager
 from .proxy_routes import ProxyService, router as proxy_router

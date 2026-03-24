@@ -11,7 +11,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, Request, Response
 
-from common.schemas import ProxyRequestMessage, ProxyResponseMessage
+from server.schemas import ProxyRequestMessage, ProxyResponseMessage
 
 from .connection_manager import ConnectionManager
 from .ws_manager import PendingRequestManager

@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 
-from common.schemas import ProxyResponseMessage
+from server.schemas import ProxyResponseMessage
 
 
 class PendingRequestManager:
